@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+        </div>
+        <h1>My Tasks</h1>
+    </header>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter">
+        <form action="{{ url_for('index') }}" method="GET" class="search-form">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search tasks..." />
+            <select name="priority">
+                <option value="">All Priorities</option>
+                <option value="High" {% if filter_priority == "High" %}selected{% endif %}>High</option>
+                <option value="Medium" {% if filter_priority == "Medium" %}selected{% endif %}>Medium</option>
+                <option value="Low" {% if filter_priority == "Low" %}selected{% endif %}>Low</option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+
+    <!-- Add Task Form Section -->
+    <div class="add-task">
+        <form action="{{ url_for('add_task') }}" method="POST">
+            <input type="text" name="new_task" placeholder="Enter new task..." required>
+            <select name="priority">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <!-- To Do Column -->
+        <div class="column" id="to-do" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>To Do</h3>
+            {% for task in tasks['todo'] %}
+                <div class="todo-item" id="{{ task['task'] }}" draggable="true" ondragstart="drag(event)" data-status="todo">
+                    {{ task['task'] }} - <strong>{{ task['priority'] }}</strong>
+                    <form action="{{ url_for('edit_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="old_task" value="{{ task['task'] }}">
+                        <input type="text" name="new_task" placeholder="Edit task" required>
+                        <select name="priority" required>
+                            <option value="High" {% if task['priority'] == 'High' %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if task['priority'] == 'Medium' %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if task['priority'] == 'Low' %}selected{% endif %}>Low</option>
+                        </select>
+                        <input type="hidden" name="status" value="todo">
+                        <button type="submit" class="edit-btn">Edit</button>
+                    </form>
+                    <form action="{{ url_for('delete_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="task" value="{{ task['task'] }}">
+                        <input type="hidden" name="status" value="todo">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="column" id="in-progress" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>In Progress</h3>
+            {% for task in tasks['inprogress'] %}
+                <div class="todo-item" id="{{ task['task'] }}" draggable="true" ondragstart="drag(event)" data-status="inprogress">
+                    {{ task['task'] }} - <strong>{{ task['priority'] }}</strong>
+                    <form action="{{ url_for('edit_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="old_task" value="{{ task['task'] }}">
+                        <input type="text" name="new_task" placeholder="Edit task" required>
+                        <select name="priority" required>
+                            <option value="High" {% if task['priority'] == 'High' %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if task['priority'] == 'Medium' %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if task['priority'] == 'Low' %}selected{% endif %}>Low</option>
+                        </select>
+                        <input type="hidden" name="status" value="inprogress">
+                        <button type="submit" class="edit-btn">Edit</button>
+                    </form>
+                    <form action="{{ url_for('delete_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="task" value="{{ task['task'] }}">
+                        <input type="hidden" name="status" value="inprogress">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- On Hold Column -->
+        <div class="column" id="on-hold" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>On Hold</h3>
+            {% for task in tasks['onhold'] %}
+                <div class="todo-item" id="{{ task['task'] }}" draggable="true" ondragstart="drag(event)" data-status="onhold">
+                    {{ task['task'] }} - <strong>{{ task['priority'] }}</strong>
+                    <form action="{{ url_for('edit_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="old_task" value="{{ task['task'] }}">
+                        <input type="text" name="new_task" placeholder="Edit task" required>
+                        <select name="priority" required>
+                            <option value="High" {% if task['priority'] == 'High' %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if task['priority'] == 'Medium' %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if task['priority'] == 'Low' %}selected{% endif %}>Low</option>
+                        </select>
+                        <input type="hidden" name="status" value="onhold">
+                        <button type="submit" class="edit-btn">Edit</button>
+                    </form>
+                    <form action="{{ url_for('delete_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="task" value="{{ task['task'] }}">
+                        <input type="hidden" name="status" value="onhold">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Completed Column -->
+        <div class="column" id="completed" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>Completed</h3>
+            {% for task in tasks['completed'] %}
+                <div class="todo-item" id="{{ task['task'] }}" draggable="true" ondragstart="drag(event)" data-status="completed">
+                    {{ task['task'] }} - <strong>{{ task['priority'] }}</strong>
+                    <form action="{{ url_for('edit_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="old_task" value="{{ task['task'] }}">
+                        <input type="text" name="new_task" placeholder="Edit task" required>
+                        <select name="priority" required>
+                            <option value="High" {% if task['priority'] == 'High' %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if task['priority'] == 'Medium' %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if task['priority'] == 'Low' %}selected{% endif %}>Low</option>
+                        </select>
+                        <input type="hidden" name="status" value="completed">
+                        <button type="submit" class="edit-btn">Edit</button>
+                    </form>
+                    <form action="{{ url_for('delete_task') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="task" value="{{ task['task'] }}">
+                        <input type="hidden" name="status" value="completed">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
